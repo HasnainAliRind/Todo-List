@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+    <link rel="stylesheet" href="./Style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+   
+</head>
+<body>
+    <div class="Container">
+        <div class="head">
+            <div class="Title"><h2>TODO-LIST</h2></div>
+        </div>
+        <div class="body">
+            <div class="padding-tasks part" id="padding-tasks">
+                <h2>Tasks</h2>
+                <div class="tasks" id="Tasks">
+                </div>
+                <div class="addNewTask" style="display: none;" id="addNewTask">
+                     <textarea placeholder="Write your Task here" name="newtask" id="newTaskDiscription" cols="30" rows="10"></textarea>
+                     <button id="set">Add</button>
+                </div>
+                <div class="addTask">
+                    <button id="add">+ Add New</button>
+                </div>
+            </div>
+            <div class="completed-tasks part" id="completed-tasks">
+                <h2>Completed Tasks</h2>
+                <div class="done-tasks" id="done-tasks"></div>
+                <div class="cleanUp" >
+                    <button id="cleanUpTasks"><i class="fas fa-broom"></i>Clean up</button>
+                </div>
+                <div class="no-task" id="no-task-interface">
+                    <img src="./NoTasks.png" alt="Something went wrong">
+                    <h2>No Completed <span>Tasks!</span></h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+ 
+    <script>
+        let task_section = document.getElementById("completed-tasks")
+        let addNewTask = document.getElementById("add")
+        let writeTask = document.getElementById("addNewTask")
+        let setTask = document.getElementById("set")
+        let cleanUpBTn = document.getElementById("cleanUpTasks")
+
+
+        function deleteTask(para) {
+            let items = JSON.parse(localStorage.getItem("TodaysTasks"))
+            let newList = items.filter(item=>item !== para);
+            localStorage.setItem("TodaysTasks",JSON.stringify(newList))
+            let tasks = document.getElementById("Tasks")
+            let listOfTasks = tasks.getElementsByClassName("tas")
+            for (let i = 0; i < listOfTasks.length; i++) {
+                if (listOfTasks[i].innerText == para) {
+                   tasks.removeChild(listOfTasks[i])
+                }
+            }
+            
+        }
+
+        function CompletedTasks(task) {
+            let completed_tasks = JSON.parse(localStorage.getItem("CompletedTasks"))
+            let done_tasks = document.getElementById("done-tasks")
+            let no_task_interface = document.getElementById("no-task-interface")
+            let cleanUpBTn = document.getElementById("cleanUpTasks")
+            no_task_interface.style.display = "none"
+            cleanUpBTn.style.display = "block"
+            completed_tasks.push(task)
+            localStorage.setItem("CompletedTasks",JSON.stringify(completed_tasks))
+            let div = document.createElement("div");
+            div.setAttribute("class","d-task")
+            div.innerText = task
+            done_tasks.appendChild(div)
+            deleteTask(task)
+        }
+      
+        function ShowTasks() {
+            let tasksFromLocalStorage = localStorage.getItem("TodaysTasks");
+            let tasks = document.getElementById("Tasks")
+            if (tasksFromLocalStorage !== null) {
+                let data = JSON.parse(localStorage.getItem("TodaysTasks"))
+                data.forEach(task => {
+                    let tasks = document.getElementById("Tasks")
+                    let div = document.createElement("div");
+                    let btns = document.createElement("div")
+                    btns.setAttribute('class', 'btns')
+                    let deleteBtn = document.createElement("button")
+                    deleteBtn.setAttribute("class", "deleteTask")
+                    deleteBtn.innerHTML = `<i class="fas fa-trash"></i>`
+                    deleteBtn.addEventListener('click', () => {
+                        deleteTask(task)
+                    })
+                    let completeTaskBtn = document.createElement("button")
+                    completeTaskBtn.setAttribute("class", "completeTaskBtn")
+                    completeTaskBtn.innerHTML = `<i class="fas fa-check"></i>`
+                    completeTaskBtn.addEventListener('click', () => {
+                        CompletedTasks(task)
+                    })
+                    btns.appendChild(deleteBtn)
+                    btns.appendChild(completeTaskBtn)
+                    div.setAttribute("class", "tas")
+                    div.innerText = task
+                    div.appendChild(btns)
+                    tasks.appendChild(div)
+                });
+            }else{
+                let tasks = []
+                localStorage.setItem("TodaysTasks",JSON.stringify(tasks))
+            }
+        }
+        ShowTasks()
+
+
+        function ShowCompletedTasks() {
+            let tasksFromLocalStorage = localStorage.getItem("CompletedTasks");
+            let no_task_interface = document.getElementById("no-task-interface")
+            let tasks = document.getElementById("done-tasks")
+            let cleanUpBTn = document.getElementById("cleanUpTasks")
+            if (tasksFromLocalStorage !== null) {
+                let data = JSON.parse(localStorage.getItem("CompletedTasks"))
+                data.forEach(task => {
+                    let div = document.createElement("div");
+                    div.setAttribute("class","d-task")
+                    div.innerText = task
+                    tasks.appendChild(div)
+                });
+               
+                if (JSON.parse(localStorage.getItem("CompletedTasks")).length == 0) {
+                    no_task_interface.style.display = "block"
+                    cleanUpBTn.style.display = "none"
+                }else{
+                    no_task_interface.style.display = "none"
+                    cleanUpBTn.style.display = "block"
+                }
+                
+            }else{
+                let tasks = []
+                localStorage.setItem("CompletedTasks",JSON.stringify(tasks))
+                cleanUpBTn.style.display = 'none'
+                no_task_interface.style.display = "block"
+            }
+        }
+        ShowCompletedTasks()
+
+
+        cleanUpBTn.addEventListener('click',()=>{
+            localStorage.setItem("CompletedTasks",JSON.stringify([]))
+            location.reload()
+        })
+
+
+        function displayTasks(tas) {
+            let tasks = document.getElementById("Tasks")
+            let div = document.createElement("div");
+            let btns = document.createElement("div")
+            btns.setAttribute('class','btns')
+            let deleteBtn = document.createElement("button")
+            deleteBtn.setAttribute("class", "deleteTask")
+            deleteBtn.innerHTML = `<i class="fas fa-trash"></i>`
+            deleteBtn.addEventListener('click',()=>{
+                deleteTask(tas)
+            })
+            let completeTaskBtn = document.createElement("button")
+            completeTaskBtn.setAttribute("class","completeTaskBtn")
+            completeTaskBtn.innerHTML = `<i class="fas fa-check"></i>`
+            completeTaskBtn.addEventListener('click', () => {
+                CompletedTasks(tas)
+            })
+            btns.appendChild(deleteBtn)
+            btns.appendChild(completeTaskBtn)
+            div.setAttribute("class", "tas")
+            div.innerText = tas
+            div.appendChild(btns)
+            tasks.appendChild(div)
+        }
+
+        addNewTask.addEventListener('click',()=>{
+            writeTask.style.display = "block";
+            addNewTask.style.display = "none"
+        })
+        setTask.addEventListener('click',()=>{
+            let writenTask = writeTask.querySelector("textarea").value;
+            if (writenTask.length > 0) {
+                writeTask.style.display = "none"
+                addNewTask.style.display = "block"
+                let addToStorage = localStorage.getItem("TodaysTasks")
+                if (addToStorage == null) {
+                    let list = []
+                    list.push(writenTask)
+                    localStorage.setItem("TodaysTasks",JSON.stringify(list));
+                    displayTasks(writenTask)
+                }else{
+                    let getItems = JSON.parse(localStorage.getItem("TodaysTasks"));
+                    let checkAlreadyPresence = getItems.some(item => item == writenTask)
+                    if (!checkAlreadyPresence) {
+                        getItems.push(writenTask)
+                        localStorage.setItem("TodaysTasks", JSON.stringify(getItems));
+                        displayTasks(writenTask)
+                    }else{
+                        alert("Similar Task is Already Presented!")
+                    }
+                }
+                writeTask.querySelector("textarea").value = ""
+            }else{
+                alert("Task Can't be Empty!")
+            }
+        })
+
+    </script>
+  
+</body>
+</html>
